@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="stylesheet" type="text/css" href="./style.css" />
+		<title>Look At You - Landscape</title>
+	</head>
+	<body>
+		<div id="riveContainer">
+			<canvas id="riveCanvas" width="300" height="50"></canvas>
+
+			<canvas id="infoCanvas" width="800" height="300"></canvas>
+		</div>
+
+		<script src="https://unpkg.com/@rive-app/canvas@2.9.1"></script>
+		<script>
+			const r = new rive.Rive({
+				src: '/lookatyou.riv',
+				canvas: document.getElementById('riveCanvas'),
+				autoplay: true,
+				stateMachines: 'Timeline 1',
+				onLoad: () => {
+					r.resizeDrawingSurfaceToCanvas();
+				},
+			});
+
+			const info = new rive.Rive({
+				src: '/info_banner.riv',
+				canvas: document.getElementById('infoCanvas'),
+				autoplay: true,
+				stateMachines: 'Timeline 1',
+				onLoad: () => {
+					r.resizeDrawingSurfaceToCanvas();
+				},
+			});
+		</script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.3/p5.min.js"></script>
+		<script src="https://unpkg.com/ml5@0.20.0-alpha.4/dist/ml5.min.js"></script>
+		<script src="/sketch-eyes-mouth.js"></script>
+		<footer>
+			<p>
+				Developed by <a href="https://alan.ooo">Alan Ren</a> ins: @alan.j.ren ,
+				designed by
+				<a href="https://www.instagram.com/kyriey.ooo/">Kyrie Yang</a>
+				ins:@kyriey.ooo
+			</p>
+		</footer>
+	</body>
+</html>

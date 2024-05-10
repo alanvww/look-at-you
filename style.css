@@ -1,0 +1,75 @@
+html,
+body {
+	height: 100%; /* Ensures the body takes at least the height of the viewport */
+	margin: 0;
+	padding: 0;
+}
+
+main {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
+.p5Canvas {
+	display: block;
+	margin: auto auto;
+}
+
+#riveContainer {
+	display: flex;
+	flex-direction: column;
+	position: fixed; /* Changed from fixed to relative */
+	justify-content: space-between; /* Ensures children are spaced out */
+	align-items: center;
+	width: 100%;
+	height: calc(100vh - 2rem); /* Minus footer height */
+}
+
+#riveCanvas {
+	display: block;
+	margin: 10vh auto;
+}
+
+#infoCanvas {
+	display: block;
+	margin: 0 auto;
+	align-self: center; /* Center horizontally */
+}
+
+footer {
+	display: flex;
+	font-family: Arial, sans-serif;
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+	background-color: #303030;
+	color: #e6e6e6;
+	height: 2rem;
+	text-align: center;
+}
+
+footer > p {
+	margin: auto;
+}
+
+/* unvisited link */
+a:link {
+	color: #fff;
+}
+
+/* visited link */
+a:visited {
+	color: #fff;
+}
+
+/* mouse over link */
+a:hover {
+	color: #fff;
+}
+
+/* selected link */
+a:active {
+	color: #fff;
+}
