@@ -45,13 +45,13 @@ function setup() {
 	video = createCapture(VIDEO);
 	camWidth = video.width;
 	camHeight = video.height;
-	createCanvas(windowWidth, windowWidth * (3 / 4));
+	createCanvas(windowWidth, windowWidth * (9 / 16));
 
-	video.size(windowWidth, windowWidth * (3 / 4));
+	video.size(windowWidth, windowWidth * (9 / 16));
 
-	scaleX = width / 640;
+	scaleX = width / 3840;
 
-	scaleY = height / 480;
+	scaleY = height / 2160;
 	video.hide();
 
 	// Start detecting faces from the webcam video

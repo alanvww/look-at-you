@@ -8,9 +8,9 @@
 	</head>
 	<body>
 		<div id="riveContainer">
-			<canvas id="riveCanvas" width="300" height="50"></canvas>
+			<canvas id="riveCanvas" width="800" height="200"></canvas>
 
-			<canvas id="infoCanvas" width="800" height="300"></canvas>
+			<canvas id="infoCanvas" width="1400" height="320"></canvas>
 		</div>
 
 		<script src="https://unpkg.com/@rive-app/canvas@2.9.1"></script>
@@ -26,7 +26,7 @@
 			});
 
 			const info = new rive.Rive({
-				src: '/info_banner.riv',
+				src: '/look_at_you_info_banner.riv',
 				canvas: document.getElementById('infoCanvas'),
 				autoplay: true,
 				stateMachines: 'Timeline 1',
@@ -37,7 +37,7 @@
 		</script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.3/p5.min.js"></script>
 		<script src="https://unpkg.com/ml5@0.20.0-alpha.4/dist/ml5.min.js"></script>
-		<script src="/sketch-eyes-mouth.js"></script>
+		<script src="/sketch-eyes.js"></script>
 		<footer>
 			<p>
 				Developed by <a href="https://alan.ooo">Alan Ren</a> ins: @alan.j.ren ,
