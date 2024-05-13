@@ -11,6 +11,7 @@ let eyeSizes = []; // Array to store eye sizes for each face
 // Calculate scaled positions for hand tracking
 let scaleX;
 let scaleY;
+let aspectRatio;
 
 async function modelLoader() {
 	// Create a function that returns a promise for loading faceMesh
@@ -38,20 +39,33 @@ async function modelLoader() {
 
 function preload() {
 	modelLoader();
+	getWebcamAspectRatio();
 }
 
 function setup() {
-	let camWidth, camHeight;
 	video = createCapture(VIDEO);
-	camWidth = video.width;
-	camHeight = video.height;
-	createCanvas(windowWidth, windowWidth * (9 / 16));
+	console.log(aspectRatio);
 
-	video.size(windowWidth, windowWidth * (9 / 16));
+	if (aspectRatio == 16 / 9) {
+		// 16:9 aspect ratio webcam
+		createCanvas(windowWidth, windowWidth * (9 / 16));
 
-	scaleX = width / 3840;
+		video.size(windowWidth, windowWidth * (9 / 16));
 
-	scaleY = height / 2160;
+		scaleX = width / 1920;
+
+		scaleY = height / 1080;
+	} else if (aspectRatio == 4 / 3) {
+		// 4:3 aspect ratio webcam
+		createCanvas(windowWidth, windowWidth * (3 / 4));
+
+		video.size(windowWidth, windowWidth * (3 / 4));
+
+		scaleX = width / 640;
+
+		scaleY = height / 480;
+	}
+
 	video.hide();
 
 	// Start detecting faces from the webcam video
@@ -223,4 +237,25 @@ function gotFaces(results) {
 function gotHands(results) {
 	// save the output to the hands variable
 	hands = results;
+}
+
+// Function to get the webcam input aspect ratio
+function getWebcamAspectRatio() {
+	// Access the user's webcam stream
+	navigator.mediaDevices
+		.getUserMedia({ video: true })
+		.then(function (stream) {
+			// Get the video track
+			const videoTrack = stream.getVideoTracks()[0];
+
+			// Get the aspect ratio from the track's settings
+			const camAspectRatio = videoTrack.getSettings().aspectRatio;
+
+			// Log or use the aspect ratio as needed
+			console.log('Webcam Aspect Ratio: ' + aspectRatio);
+			aspectRatio = camAspectRatio;
+		})
+		.catch(function (error) {
+			console.error('Error accessing webcam:', error);
+		});
 }

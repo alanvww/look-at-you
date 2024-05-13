@@ -36,16 +36,24 @@ main {
 	margin: 0 auto;
 	align-self: center; /* Center horizontally */
 }
+#qrcode {
+	display: absolute;
+	position: fixed;
+	width: 200px;
+	bottom: 3vh;
+	left: 0;
+}
 
 footer {
 	display: flex;
 	font-family: Arial, sans-serif;
+	font-size: 2rem;
 	position: fixed;
 	bottom: 0;
 	width: 100%;
 	background-color: #303030;
 	color: #e6e6e6;
-	height: 2rem;
+	height: 4rem;
 	text-align: center;
 }
 
