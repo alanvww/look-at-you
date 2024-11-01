@@ -8,9 +8,10 @@ let results;
 
 async function setup() {
   // Create canvas and set up video capture with constraints
-  createCanvas(640, 480);
+  createCanvas(640, 360);
   video = createCapture(VIDEO);
-  video.size(320, 240);
+  video.size(640, 360);
+  video.hide()
 
   // Load the Transformers.js model pipeline with async/await
   let pipeline = await loadTransformers();
@@ -19,7 +20,7 @@ async function setup() {
   depthEstimation = await pipeline(
     "depth-estimation",
     "onnx-community/depth-anything-v2-small",
-    { dtype: 'q4',device: "webgpu" }
+    { dtype: 'q4f16',device: "webgpu" }
   );
 
   // Start processing the video for depth estimation
@@ -40,6 +41,9 @@ function draw() {
     // Load pixels of the depth image for manipulation
     depthImg.loadPixels();
 
+    let currentFrame = video.get()
+    currentFrame.loadPixels()
+
     // Loop through each row of the depth map
     for (let y = 0; y < depth.height; y++) {
       // Loop through each column of the depth map
@@ -56,8 +60,8 @@ function draw() {
 		let fillColor = {}
 		if(depthValue > 255) {
 			fillColor = {r: 255, g: 0, b: 0};
-		} else if(depthValue > 200) {
-			fillColor = {r: 255, g: 255, b: 0};
+		} else if(depthValue > 220) {
+			fillColor = {r: currentFrame.pixels[pixelIndex], g: currentFrame.pixels[pixelIndex + 1], b: currentFrame.pixels[pixelIndex + 2]};
 
 		} else if(depthValue > 150) {
 			fillColor = {r: 0, g: 255, b: 0};
