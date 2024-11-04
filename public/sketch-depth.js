@@ -1,17 +1,27 @@
-// Introduction to Machine Learning for the Arts
-// https://github.com/ml5js/Intro-ML-Arts-IMA-F24
-
 let video;
 let depthResult;
 let depthEstimation;
 let results;
+let points = [];
+let processingCanvas; // Separate canvas for video processing
+let processingContext; // 2D context for processing canvas
+const DEPTHWIDTH = 320;  // Matching video width
+const DEPTHHEIGHT = 240; // Matching video height
 
 async function setup() {
-  // Create canvas and set up video capture with constraints
-  createCanvas(640, 360);
+  // Create main canvas with WEBGL for point cloud visualization
+  createCanvas(windowWidth, windowHeight, WEBGL);
+
+  // Create video capture
   video = createCapture(VIDEO);
-  video.size(640, 360);
-  video.hide()
+  video.size(320, 240);
+  video.hide();
+
+  // Create separate canvas for video processing
+  processingCanvas = document.createElement('canvas');
+  processingCanvas.width = DEPTHWIDTH;
+  processingCanvas.height = DEPTHHEIGHT;
+  processingContext = processingCanvas.getContext('2d');
 
   // Load the Transformers.js model pipeline with async/await
   let pipeline = await loadTransformers();
@@ -20,86 +30,89 @@ async function setup() {
   depthEstimation = await pipeline(
     "depth-estimation",
     "onnx-community/depth-anything-v2-small",
-    { dtype: 'q4f16',device: "webgpu" }
+    { dtype: 'q4f16', device: "webgpu" }
   );
+
+  // Create initial point cloud structure
+  createPointCloud();
 
   // Start processing the video for depth estimation
   processVideo();
 }
 
-function draw() {
-  // Draw the video on the canvas
-  image(video, 0, 0);
-
-  // If depth results are available, visualize them using pixel manipulation
-  if (results) {
-    const { depth } = results;
-
-    // Create an image to store the depth visualization
-    let depthImg = createImage(depth.width, depth.height);
-
-    // Load pixels of the depth image for manipulation
-    depthImg.loadPixels();
-
-    let currentFrame = video.get()
-    currentFrame.loadPixels()
-
-    // Loop through each row of the depth map
-    for (let y = 0; y < depth.height; y++) {
-      // Loop through each column of the depth map
-      for (let x = 0; x < depth.width; x++) {
-        // Calculate the 1D array index from 2D coordinates
-        let index = x + y * depth.width;
-
-        // Get the depth value for the current pixel
-        let depthValue = depth.data[index];
-
-        // Calculate the corresponding pixel index in the depth image
-        let pixelIndex = index * 4;
-
-		let fillColor = {}
-		if(depthValue > 255) {
-			fillColor = {r: 255, g: 0, b: 0};
-		} else if(depthValue > 220) {
-			fillColor = {r: currentFrame.pixels[pixelIndex], g: currentFrame.pixels[pixelIndex + 1], b: currentFrame.pixels[pixelIndex + 2]};
-
-		} else if(depthValue > 150) {
-			fillColor = {r: 0, g: 255, b: 0};
-		}
-		else if(depthValue > 100) {
-			fillColor = {r: 0, g: 255, b: 255};
-		}
-		else if(depthValue > 50) {
-			fillColor = {r: 0, g: 0, b: 255};
-		}
-		else {
-			fillColor = {r: 0, g: 0, b: 0};
-		}
-
-
-        // Set the RGB values to the depth value for a grayscale effect
-        depthImg.pixels[pixelIndex] = fillColor.r;
-        depthImg.pixels[pixelIndex + 1] = fillColor.g;
-        depthImg.pixels[pixelIndex + 2] = fillColor.b;
-
-        // Set the alpha value to fully opaque
-        depthImg.pixels[pixelIndex + 3] = 255;
-      }
+function createPointCloud() {
+  // Initialize points array with 3D coordinates
+  for (let y = 0; y < DEPTHHEIGHT; y++) {
+    for (let x = 0; x < DEPTHWIDTH; x++) {
+      let index = x + y * DEPTHWIDTH;
+      // Center the point cloud around origin
+      let newX = map(x, 0, DEPTHWIDTH, -width / 2, width / 2);
+      let newY = map(y, 0, DEPTHHEIGHT, -height / 2, height / 2);
+      points[index] = {
+        x: newX,
+        y: newY,
+        z: 0,
+        color: { r: 0, g: 0, b: 0 }
+      };
     }
-
-    // Update the pixels of the depth image
-    depthImg.updatePixels();
-
-    // Draw the depth image on the canvas
-    image(depthImg, 0, 0, width, height);
   }
 }
 
-// Asynchronous function to continuously process video frames
-async function processVideo() {
-  // Convert video frame to data URL and run depth estimation
-  results = await depthEstimation(video.canvas.toDataURL());
+function draw() {
+  background(0);
 
-  // Recursively call processVideo() to keep processing frames
-  processVideo();
+  // Add orbit control for interactive viewing
+  orbitControl();
+
+
+  // If depth results are available, update and display point cloud
+  if (results) {
+    const { depth } = results;
+
+    // Get video frame data
+    processingContext.drawImage(video.elt, 0, 0, DEPTHWIDTH, DEPTHHEIGHT);
+
+    // Update point cloud positions and colors
+    for (let y = 0; y < depth.height; y++) {
+      for (let x = 0; x < depth.width; x++) {
+        let index = x + y * depth.width;
+        let depthValue = depth.data[index];
+
+        // Map depth value to a reasonable Z-range
+        let z = map(depthValue, 0, 255, 0, -1000);
+
+        // Update point data
+        points[index].z = z;
+      }
+    }
+
+    // Draw point cloud
+    push();
+
+    // Draw all points
+    strokeWeight(2);
+    beginShape(POINTS);
+    for (let i = 0; i < points.length; i++) {
+      const point = points[i];
+      stroke(255);
+      vertex(point.x, point.y, point.z);
+    }
+    endShape();
+    pop();
+  }
+}
+
+// Modified processVideo function to use the processing canvas
+async function processVideo() {
+  // Draw current video frame to processing canvas
+  processingContext.drawImage(video.elt, 0, 0, 0, 0);
+
+  // Get data URL from processing canvas
+  const dataURL = processingCanvas.toDataURL();
+
+  // Process depth estimation
+  results = await depthEstimation(dataURL);
+
+  // Continue processing
+  setTimeout(processVideo,100)
 }
